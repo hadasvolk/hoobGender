@@ -29,13 +29,7 @@ class Ygenes:
 
 class Helpers:
 
-    def __init__(self, out, log) -> None:
-        self.out = out
-        self.log = log
-        self.genLogger()
-
-
-    def genLogger(self) -> None:
+    def genLogger(self, out, log) -> None:
         levels = {
             'critical': logging.CRITICAL,
             'error': logging.ERROR,
@@ -44,11 +38,11 @@ class Helpers:
             'info': logging.INFO,
             'debug': logging.DEBUG
             }
-        level = levels.get(self.log.lower())
+        level = levels.get(log.lower())
         logging.basicConfig(level=level,
                             format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
                             datefmt='%m-%d %H:%M',
-                            filename= os.path.join(self.out, 'hoobGender.log'),
+                            filename= os.path.join(out, 'hoobGender.log'),
                             filemode='w')
         console = logging.StreamHandler()
         console.setLevel(logging.INFO)
@@ -92,7 +86,6 @@ class HoobGender:
         self.sample_name = args.sample
         self.fractions_path = args.fractions
         self.out = args.out
-        self.log = args.log
 
         try:
             os.makedirs(self.out, exist_ok=True)
@@ -100,7 +93,7 @@ class HoobGender:
             logging.error("\t\tError in: HoobGender __init__, unable to create output directory\n")
             sys.exit(1)
 
-        self.helpers = Helpers(self.out, self.log)
+        self.helpers = Helpers()
         logging.info('HoobGender started {}'.format(self.sample_name))
 
         self.Y = Ygenes()
@@ -194,6 +187,10 @@ if __name__ == '__main__':
     parser.add_argument('-o', '--out', help='Output directory', required=False, default='./hoobGender', type=str)
     parser.add_argument('-log', '--log', default="info", help=("Provide logging level. Example --log warning', default='info'"))
     args = parser.parse_args()
+    
+    helper = Helpers()
+    helper.genLogger(args.out, args.log)
+    logging.info('HoobGender started as main {}'.format(args.sample))
     
     hoob = HoobGender(args)
     print("hoobGender prediction for {}: {}".format(args.sample, hoob.prediction()))
