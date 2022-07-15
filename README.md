@@ -1,7 +1,7 @@
 # hoobGender
 Fetal gender determination using the male-specific region of the human Y chromosome and unsupervised mixture of gaussians
 
-'''python
+```python
 usage: hoobGender.py [-h] -b BAM -s SAMPLE -f FRACTIONS [-o OUT] [-log LOG]
 
 optional arguments:
@@ -14,5 +14,5 @@ optional arguments:
   -o OUT, --out OUT     Output directory
   -log LOG, --log LOG   Provide logging level. Example --log warning',
                         default='info'
-'''
+```
 ![plot](./example/gmm_fig.png)
