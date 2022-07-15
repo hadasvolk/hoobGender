@@ -189,8 +189,9 @@ if __name__ == '__main__':
     args = parser.parse_args()
     
     helper = Helpers()
+    os.makedirs(args.out, exist_ok=True)
     helper.genLogger(args.out, args.log)
     logging.info('HoobGender started as main {}'.format(args.sample))
-    
+
     hoob = HoobGender(args)
     print("hoobGender prediction for {}: {}".format(args.sample, hoob.prediction()))
