@@ -97,7 +97,7 @@ class HoobGender:
         try:
             os.makedirs(self.out, exist_ok=True)
         except Exception as e:
-            logging.info("\t\tError in: HoobGender __init__, unable to create output directory\n")
+            logging.error("\t\tError in: HoobGender __init__, unable to create output directory\n")
             sys.exit(1)
 
         self.helpers = Helpers(self.out, self.log)
@@ -109,7 +109,7 @@ class HoobGender:
             self.fractions = self.helpers.loadPickle(self.fractions_path)
             logging.info(self.fractions)
         else:
-            logging.info('{} does not exist, exiting'.format(self.fractions_path))
+            logging.error('{} does not exist, exiting'.format(self.fractions_path))
             sys.exit(1)
         
         self.y_fraction_specific()
@@ -117,25 +117,30 @@ class HoobGender:
         
     
     def y_fraction_specific(self) -> None:
-        samfile = pysam.AlignmentFile(self.bam_path, "rb")
+        try:
+            samfile = pysam.AlignmentFile(self.bam_path, "rb")
+            logging.info('BAM file opened')
+        except Exception as e:
+            logging.error("\t\tError in: HoobGender y_fraction_specific, unable to open BAM file\n")
+            sys.exit(1)
         count_spec = 0
         for gene,coord in self.Y.__dict__.items():
             for read in samfile.fetch(region = coord):
                 count_spec += 1
-        logging.info('{} has {} reads on MSY'.format(self.bam_path, count_spec))
+        logging.info('{} has {} reads on MSY'.format(self.sample_name, count_spec))
 
         count_Y = 0
         for read in samfile.fetch('chrY'):
             count_Y += 1
         if count_Y == 0:
-            logging.warning('{} has 0 reads on chrY'.format(self.bam_path))
+            logging.warning('{} has 0 reads on chrY'.format(self.sample_name))
             count_Y = 1
-        logging.info('{} has {} reads on chrY'.format(self.bam_path, count_Y))
+        logging.info('{} has {} reads on chrY'.format(self.sample_name, count_Y))
 
         samfile.close()
 
         self.fraction_specific_to_Y = (count_spec * 100) / count_Y
-        logging.info('{} fraction of MSY reads on chrY: {}'.format(self.bam_path, self.fraction_specific_to_Y))
+        logging.info('{} fraction of MSY reads on chrY: {}'.format(self.sample_name, self.fraction_specific_to_Y))
     
     
     def calculate_threshold(self) -> None:
