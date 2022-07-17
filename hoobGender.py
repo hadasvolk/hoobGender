@@ -85,6 +85,7 @@ class HoobGender:
         self.bam_path = args.bam
         self.sample_name = args.sample
         self.fractions_path = args.fractions
+        self.epsilon = args.epsilon
         self.out = args.out
 
         try:
@@ -169,9 +170,9 @@ class HoobGender:
     
 
     def prediction(self) -> str:
-        if self.fraction_specific_to_Y > self.cut_off * 1.05:
+        if self.fraction_specific_to_Y > self.cut_off * (1.0 + self.epsilon):
             self.gender_prediction = "Male"
-        elif self.fraction_specific_to_Y < self.cut_off * 0.95:
+        elif self.fraction_specific_to_Y < self.cut_off * (1.0 - self.epsilon):
             self.gender_prediction = "Female"
         else:
             self.gender_prediction = "No Call"
@@ -199,6 +200,7 @@ if __name__ == '__main__':
     parser.add_argument('-b', '--bam', help='Path to BAM file', required=True, type=str)
     parser.add_argument('-s', '--sample', help='Sample name', required=True, type=str)
     parser.add_argument('-f', '--fractions', help='Path to fractions pickle file', required=True, type=str)
+    parser.add_argument('-e', '--epsilon', help='Epsilon for No Call region', required=False, type=float, default=0.5)
     
     parser.add_argument('-o', '--out', help='Output directory', required=False, default='./hoobGender', type=str)
     parser.add_argument('-log', '--log', default="info", help=("Provide logging level. Example --log warning', default='info'"))

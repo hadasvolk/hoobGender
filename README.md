@@ -11,6 +11,8 @@ optional arguments:
                         Sample name
   -f FRACTIONS, --fractions FRACTIONS
                         Path to fractions pickle file
+  -e EPSILON, --epsilon EPSILON
+                        Epsilon for No Call region
   -o OUT, --out OUT     Output directory
   -log LOG, --log LOG   Provide logging level. Example --log warning',
                         default='info'
