@@ -100,6 +100,7 @@ class HoobGender:
 
         if self.helpers._exists(self.fractions_path):
             self.fractions = self.helpers.loadPickle(self.fractions_path)
+            self.fractions = self.fractions[self.fractions.Sample != self.sample_name]
             logging.info(self.fractions)
         else:
             logging.error('{} does not exist, exiting'.format(self.fractions_path))
@@ -168,13 +169,28 @@ class HoobGender:
     
 
     def prediction(self) -> str:
-        self.gender_prediction = "Male" if self.fraction_specific_to_Y > self.cut_off else "Female"
+        if self.fraction_specific_to_Y > self.cut_off * 1.05:
+            self.gender_prediction = "Male"
+        elif self.fraction_specific_to_Y < self.cut_off * 0.95:
+            self.gender_prediction = "Female"
+        else:
+            self.gender_prediction = "No Call"
         logging.info("hoobGender prediction for {}: {}".format(self.sample_name, self.gender_prediction))
 
-        self.fractions.loc[len(self.fractions.index)] = [self.sample_name, self.gender_prediction, self.fraction_specific_to_Y]
-        self.helpers.spitPickle(self.fractions, os.path.join(self.out, 'fractions.pkl'))
-
         return self.gender_prediction
+
+
+    def gen_fractions_pkl(self) -> pd.DataFrame:
+        try:
+            self.fractions.loc[len(self.fractions.index)] = [self.sample_name, self.gender_prediction, self.fraction_specific_to_Y]
+            self.fractions.drop_duplicates(inplace=True)
+            self.helpers.spitPickle(self.fractions, os.path.join(self.out, 'fractions.pkl'))
+            self.fractions.to_csv(os.path.join(self.out, 'fractions.csv'), index=False)
+            logging.info("Generated fractions.pkl and fractions.csv")
+            return self.fractions
+        except Exception as e:
+            logging.error("\t\tError in: HoobGender gen_fractions_pkl, gender prediction not found")
+            return None
 
 
 if __name__ == '__main__':
@@ -194,4 +210,5 @@ if __name__ == '__main__':
     logging.info('HoobGender started as main {}'.format(args.sample))
 
     hoob = HoobGender(args)
-    print("hoobGender prediction for {}: {}".format(args.sample, hoob.prediction()))
+    hoob.prediction()
+    hoob.gen_fractions_pkl()
