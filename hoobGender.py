@@ -154,6 +154,7 @@ class HoobGender:
         local_min_i = argrelextrema(sorted_gmm_y, np.less)
 
         self.cut_off = gmm_x[local_min_i][0]
+        logging.info('GMM cut off: {}'.format(self.cut_off))
 
         #plot gmm fig
         fig, ax = plt.subplots(figsize=(10, 6))
